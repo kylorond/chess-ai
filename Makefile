@@ -1,31 +1,29 @@
-# Makefile untuk Proyek Catur C++
+# Makefile untuk kompilasi proyek catur
 
-# Compiler yang digunakan
+# Compiler
 CXX = g++
 
-# Flag untuk compiler (misal: standar C++11, warning)
-CXXFLAGS = -std=c++11 -Wall
+# Flag compiler: -std=c++17 untuk fitur C++17, -Wall untuk semua warning, -O2 untuk optimisasi
+CXXFLAGS = -std=c++17 -Wall -O2
 
 # Nama file executable yang akan dihasilkan
-TARGET = ChessEngine
+TARGET = chess_app
 
 # Semua file source .cpp
-SRCS = main.cpp Board.cpp Engine.cpp
+SOURCES = main.cpp ChessEngine.cpp
 
-# Mengubah daftar .cpp menjadi .o (file objek)
-OBJS = $(SRCS:.cpp=.o)
+# Semua file header .h
+HEADERS = ChessEngine.h
 
-# Aturan default: apa yang harus dilakukan jika hanya mengetik 'make'
+# Aturan default: kompilasi program
 all: $(TARGET)
 
-# Aturan untuk membuat file executable dari file-file objek
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
-
-# Aturan umum untuk membuat file .o dari file .cpp
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TARGET): $(SOURCES) $(HEADERS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SOURCES)
 
 # Aturan untuk membersihkan file hasil kompilasi
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET)
+
+# Menandai 'all' dan 'clean' sebagai phony targets
+.PHONY: all clean

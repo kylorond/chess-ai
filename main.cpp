@@ -1,56 +1,44 @@
 #include <iostream>
-#include <string>
-#include "Board.h"
-#include "Engine.h"
+#include "ChessEngine.h"
 
-// Fungsi untuk mengubah input user (e.g., "e2e4") menjadi struct Move
-Move parse_move(const std::string& move_str) {
-    Move m;
-    m.from_col = move_str[0] - 'a';
-    m.from_row = '8' - move_str[1];
-    m.to_col = move_str[2] - 'a';
-    m.to_row = '8' - move_str[3];
-    return m;
+void printMove(const Move& move) {
+    std::cout << (char)('a' + move.start_col) << 8 - move.start_row
+              << (char)('a' + move.end_col) << 8 - move.end_row;
 }
 
 int main() {
-    Board board;
-    Engine engine;
-
-    // Atur kedalaman pencarian AI. Semakin tinggi, semakin pintar tapi semakin lambat.
-    // 3 atau 4 adalah awal yang baik.
-    const int AI_SEARCH_DEPTH = 3;
+    ChessEngine engine;
+    bool playerIsWhite = true; // Player memainkan Putih
+    bool isPlayerTurn = true;
+    int searchDepth = 4; // Tingkat kedalaman pencarian. Semakin tinggi, semakin pintar & lambat. 3-4 adalah awal yang baik.
 
     while (true) {
-        board.print_board();
-        
-        if(board.generate_legal_moves().empty()){
-            std::cout << "Game Over!" << std::endl;
-            break;
-        }
+        engine.printBoard();
+        if (isPlayerTurn) {
+            std::cout << "Giliran Anda (Putih). Masukkan langkah (contoh: e2e4): ";
+            std::string moveStr;
+            std::cin >> moveStr;
 
-        Move user_move;
-        if (board.is_white_turn) { // Giliran pemain
-            std::string move_str;
-            std::cout << "Masukkan langkah Anda (contoh: e2e4): ";
-            std::cin >> move_str;
-            
-            // Validasi input sederhana
-            if (move_str.length() != 4) {
-                std::cout << "Format langkah tidak valid. Coba lagi." << std::endl;
-                continue;
+            try {
+                Move playerMove = engine.parseMove(moveStr);
+                if (engine.isMoveValid(playerMove, playerIsWhite)) {
+                    engine.makeMove(playerMove);
+                    isPlayerTurn = false;
+                } else {
+                    std::cout << "Langkah tidak sah! Coba lagi." << std::endl;
+                }
+            } catch (const std::exception& e) {
+                std::cout << "Error: " << e.what() << std::endl;
             }
-            user_move = parse_move(move_str);
-            // NOTE: Di sini tidak ada validasi apakah langkah user legal atau tidak.
-            // Untuk aplikasi nyata, ini harus ditambahkan.
-
-        } else { // Giliran komputer
-            std::cout << "\nKomputer sedang berpikir..." << std::endl;
-            user_move = engine.find_best_move(board, AI_SEARCH_DEPTH);
-            std::cout << "Komputer bergerak: " << user_move.to_string() << std::endl;
+        } else {
+            std::cout << "Giliran Komputer (Hitam)... berpikir..." << std::endl;
+            Move bestMove = engine.getBestMove(searchDepth, !playerIsWhite);
+            engine.makeMove(bestMove);
+            std::cout << "Komputer melangkah: ";
+            printMove(bestMove);
+            std::cout << std::endl;
+            isPlayerTurn = true;
         }
-
-        board.make_move(user_move);
     }
 
     return 0;
