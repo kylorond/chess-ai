@@ -1,4 +1,4 @@
-1. Persiapan dan Instalasi
+PERSIAPAN DAN INSTALASI
 Anda hanya memerlukan satu hal utama: Compiler C++.
 
 Untuk Windows:
